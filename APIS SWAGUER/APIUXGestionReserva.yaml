@@ -1,0 +1,126 @@
+openapi: 3.0.0
+info:
+  title: API de gestión de reservas
+  description: Esta es una API para gestionar las reservas en una aplicación de reserva de citas médicas online.
+  version: 1.0.0
+
+servers:
+  - url: https://localhost
+
+tags:
+  - name: Gestión de reservas
+    description: Todos los servicios relacionados con la gestión de reservas.
+
+paths:
+  /ux-gestion-reservas/the_cure/servicio-al-cliente/v1/registrar-reserva/{idUsuario}:
+    post:
+      tags:
+        - Gestión de reservas
+      summary: Registrar una nueva reserva
+      security:
+        - gesticon_auth: [write:gesticon]
+      parameters:
+        - in: path
+          name: idUsuario
+          required: true
+          schema:
+            type: integer
+          description: Identificador único del usuario
+      requestBody:
+        $ref: '#/components/requestBodies/Reserva'
+      responses:
+        '200':
+          description: Reserva creada correctamente
+          
+  /ux-gestion-reservas/the_cure/servicio-al-cliente/v1/consultar-reservas/{idUsuario}:
+    get:
+      tags:
+        - Gestión de reservas
+      summary: Consultar reservas de un usuario
+      security:
+        - gesticon_auth: [read:gesticon]
+      parameters:
+        - in: path
+          name: idUsuario
+          required: true
+          schema:
+            type: integer
+          description: Identificador único del usuario
+      responses:
+        '200':
+          description: Una lista de reservas del usuario
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reserva'
+
+  /ux-gestion-reservas/the_cure/servicio-al-cliente/v1/cancelar-reserva/{idReserva}:
+    delete:
+      tags:
+        - Gestión de reservas
+      summary: Cancelar una reserva
+      security:
+        - gesticon_auth: [write:gesticon]
+      parameters:
+        - in: path
+          name: idReserva
+          required: true
+          schema:
+            type: integer
+          description: Identificador único de la reserva
+      responses:
+        '200':
+          description: Reserva cancelada correctamente
+
+components:
+  schemas:
+    Reserva:
+      type: object
+      properties:
+        idReserva:
+          type: integer
+          example: 1
+        idUsuario:
+          type: integer
+          example: 101
+        idClinica:
+          type: integer
+          example: 5
+        idEspecialidad:
+          type: integer
+          example: 2
+        idMedico:
+          type: integer
+          example: 20
+        fechaReserva:
+          type: string
+          format: date
+          example: '2023-07-10'
+        horaReserva:
+          type: string
+          format: time
+          example: '15:00'
+
+  requestBodies:
+    Reserva:
+      description: Reserva que necesita ser registrada
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Reserva'
+
+  securitySchemes:
+    gesticon_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://gesticon.swagger.io/oauth/authorize
+          scopes:
+            write:gesticon: Modificar gesticon en tu cuenta
+            read:gesticon: Leer tu gesticon
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header

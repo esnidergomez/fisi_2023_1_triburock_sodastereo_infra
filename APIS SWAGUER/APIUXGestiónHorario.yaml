@@ -1,0 +1,85 @@
+openapi: 3.0.0
+info:
+  title: API de gestión de horarios
+  description: Esta es una API para gestionar los horarios en una aplicación de reserva de citas médicas online.
+  version: 1.0.0
+
+servers:
+  - url: https://localhost
+
+tags:
+  - name: Gestión de horarios
+    description: Todos los servicios relacionados con la gestión de horarios.
+
+paths:
+  /ux-gestion-especialidades/the_cure/servicio-al-cliente/v1/consultar-horarios/{idClinica}{idEspecialidad}{idMedico}:
+    get:
+      tags:
+        - Gestión de horarios
+      summary: Consultar horarios de un médico, en una especialidad, dentro de una clínica
+      security:
+        - gesticon_auth: [read:gesticon]
+      parameters:
+        - in: path
+          name: idClinica
+          required: true
+          schema:
+            type: integer
+          description: Identificador único de la clínica
+        - in: path
+          name: idEspecialidad
+          required: true
+          schema:
+            type: integer
+          description: Identificador único de la especialidad
+        - in: path
+          name: idMedico
+          required: true
+          schema:
+            type: integer
+          description: Identificador único del médico
+      responses:
+        '200':
+          description: Una lista de horarios disponibles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Horario'
+
+components:
+  schemas:
+    Horario:
+      type: object
+      properties:
+        idHorario:
+          type: integer
+          example: 1
+        horaInicio:
+          type: string
+          format: time
+          example: '09:00'
+        horaFin:
+          type: string
+          format: time
+          example: '17:00'
+        dias:
+          type: array
+          items:
+            type: string
+            enum: [Lunes, Martes, Miércoles, Jueves, Viernes, Sábado, Domingo]
+
+  securitySchemes:
+    gesticon_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://gesticon.swagger.io/oauth/authorize
+          scopes:
+            write:gesticon: Modificar gesticon en tu cuenta
+            read:gesticon: Leer tu gesticon
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
